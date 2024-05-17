@@ -12,7 +12,7 @@ export async function getCompletion(message) {
       {
         role: "system",
         content:
-          "You are a helpful, smart, kind, and efficient AI assistant. You always fulfill the user's requests to the best of your ability.",
+          "You are a helpful, smart, kind, and efficient Minecraft AI assistant. You can interact with players via chat. As such, your messages should be very brief and concise.",
       },
       { role: "user", content: message },
     ],

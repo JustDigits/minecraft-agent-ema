@@ -24,6 +24,17 @@ export class Agent {
   async handleMessage(username, message) {
     console.log("Handling message from ", username, ": ", message);
 
+    const ignore_messages = [
+      "Set own game mode to",
+      "Set the time to",
+      "Set the difficulty to",
+      "Teleported ",
+      "Set the weather to",
+      "Gamerule ",
+    ];
+
+    if (ignore_messages.some((m) => message.startsWith(m))) return;
+
     let response = await getCompletion(message);
     this.sendMessage(response);
   }
