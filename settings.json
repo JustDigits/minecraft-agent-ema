@@ -1,0 +1,8 @@
+{
+  "mineflayer": {
+    "host": "localhost",
+    "port": 62801,
+    "username": "TheLittleCaesars",
+    "version": "1.18.2"
+  }
+}
