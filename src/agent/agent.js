@@ -1,13 +1,15 @@
 import { readFileSync } from "fs";
 
-import { initializeBot } from "../bot/bot.js";
+import { Bot } from "../bot/bot.js";
+
 import { getCompletion } from "./chat.js";
 
 export class Agent {
-  async initializeAgent(server_host, server_port, profile_fp) {
+  async initializeAgent(profile_fp) {
     this.profile = this.parseAgentProfile(profile_fp);
     this.name = this.profile.name;
-    this.bot = initializeBot(server_host, server_port);
+    
+    this.bot = new Bot().initializeBot();
 
     this.bot.once("spawn", async () => {
       // Wait for world state to load

@@ -2,12 +2,23 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
 import { Agent } from "../agent/agent.js";
-
-const MAX_ARGUMENT_LENGTH = 3;
+import { Bot } from "../bot/bot.js";
 
 export class AgentProcess {
-  initialize(processArgs) {
-    const argv = yargs(hideBin(processArgs))
+  initialize(processArgv) {
+    const argv = this.getArgv(processArgv);
+
+    const argvBotSettings = {
+      host: argv.host,
+      port: argv.port,
+    };
+    this.updateBotSettings(argvBotSettings);
+
+    new Agent().initializeAgent(argv.profile);
+  }
+
+  getArgv(processArgv) {
+    return yargs(hideBin(processArgv))
       .version(false)
       .option("host", {
         type: "string",
@@ -29,15 +40,13 @@ export class AgentProcess {
         default: "src/agent/profiles/default-agent.json",
       })
       .check((argv, options) => {
-        this.checkArguments(argv);
+        this.checkArgv(argv);
         return true;
       })
       .parse();
-
-    new Agent().initializeAgent(argv.host, argv.port, argv.profile);
   }
 
-  checkArguments(argv) {
+  checkArgv(argv) {
     const host = argv.host;
     const port = argv.port;
     const profile = argv.profile;
@@ -53,5 +62,24 @@ export class AgentProcess {
     if (typeof profile !== "string") {
       throw new Error("Only 0 or 1 profiles may be passed.");
     }
+  }
+
+  updateBotSettings(argvBotSettings) {
+    const bot = new Bot();
+    const newSettings = {};
+
+    for (const [key, value] of Object.entries(argvBotSettings)) {
+      if (value !== "") {
+        newSettings[key] = value;
+      }
+    }
+    if (Object.keys(newSettings).length === 0) {
+      return;
+    }
+
+    for (const [key, value] of Object.entries(newSettings)) {
+      bot.settings[key] = value;
+    }
+    bot.saveBotSettings();
   }
 }

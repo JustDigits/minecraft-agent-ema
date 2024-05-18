@@ -1,27 +1,36 @@
-import { readFileSync } from "fs";
+import { writeFileSync, readFileSync } from "fs";
 
 import { createBot } from "mineflayer";
 
-export function initializeBot(server_host, server_port) {
-  // @see https://github.com/PrismarineJS/mineflayer/blob/master/docs/api.md#bot
-  const settings = parseBotSettings(server_host, server_port);
-
-  return createBot({
-    host: settings.host,
-    port: settings.port,
-    username: settings.username,
-  });
-}
-
-function parseBotSettings(server_host, server_port) {
-  const settings = JSON.parse(readFileSync("src/bot/settings.json", "utf-8"));
-
-  if (server_host !== "") {
-    settings.host = server_host;
-  }
-  if (server_port !== "") {
-    settings.port = server_port;
+export class Bot {
+  constructor() {
+    this.settings_filepath = "src/bot/settings.json";
+    this.settings = this.parseBotSettings();
   }
 
-  return settings;
+  initializeBot() {
+    // @see https://github.com/PrismarineJS/mineflayer/blob/master/docs/api.md#bot
+    console.log(this.settings);
+
+    return createBot({
+      host: this.settings.host,
+      port: this.settings.port,
+      username: this.settings.username,
+    });
+  }
+
+  parseBotSettings() {
+    return JSON.parse(readFileSync(this.settings_filepath, "utf-8"));
+  }
+  saveBotSettings() {
+    writeFileSync(
+      this.settings_filepath,
+      JSON.stringify(this.settings, null, 2),
+      (error) => {
+        if (error) {
+          console.log(error);
+        }
+      }
+    );
+  }
 }
