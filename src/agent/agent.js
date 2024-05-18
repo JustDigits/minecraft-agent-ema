@@ -1,15 +1,15 @@
 import { readFileSync } from "fs";
 
 import { Bot } from "../bot/bot.js";
-
-import { getCompletion } from "./chat.js";
+import { DecisionMaker } from "./decision-maker/decision-maker.js";
 
 export class Agent {
-  async initializeAgent(profile_fp) {
-    this.profile = this.parseAgentProfile(profile_fp);
+  async initializeAgent(profileFilepath) {
+    this.profile = this.parseAgentProfile(profileFilepath);
     this.name = this.profile.name;
-    
+
     this.bot = new Bot().initializeBot();
+    this.decisionMaker = new DecisionMaker(this);
 
     this.bot.once("spawn", async () => {
       // Wait for world state to load
@@ -20,38 +20,14 @@ export class Agent {
     });
   }
 
-  parseAgentProfile(profile_fp) {
-    return JSON.parse(readFileSync(profile_fp, "utf-8"));
+  parseAgentProfile(profileFilepath) {
+    return JSON.parse(readFileSync(profileFilepath, "utf-8"));
   }
 
   startEventListeners() {
-    this.bot.on("chat", (username, message) => {
-      if (username === this.name) return;
-      this.handleMessage(username, message);
+    this.bot.on("chat", async (username, message) => {
+      if (username === this.bot.username) return;
+      await this.decisionMaker.handleMessage(username, message);
     });
-  }
-
-  async handleMessage(username, message) {
-    console.log("Handling message from ", username, ": ", message);
-
-    const ignore_messages = [
-      "Set own game mode to",
-      "Set the time to",
-      "Set the difficulty to",
-      "Teleported ",
-      "Set the weather to",
-      "Gamerule ",
-    ];
-
-    if (ignore_messages.some((m) => message.startsWith(m))) return;
-
-    let response = await getCompletion(message);
-    this.sendMessage(response);
-  }
-
-  async sendMessage(message) {
-    // In Minecraft, newlines are interpreted as separate chats which may trigger spam filters. Replaced with whitespaces.
-    message = message.replaceAll("\n", " ");
-    return this.bot.chat(message);
   }
 }

@@ -7,13 +7,12 @@ import { Bot } from "../bot/bot.js";
 export class AgentProcess {
   initialize(processArgv) {
     const argv = this.getArgv(processArgv);
-
     const argvBotSettings = {
       host: argv.host,
       port: argv.port,
     };
-    this.updateBotSettings(argvBotSettings);
 
+    this.updateBotSettings(argvBotSettings);
     new Agent().initializeAgent(argv.profile);
   }
 
@@ -51,17 +50,12 @@ export class AgentProcess {
     const port = argv.port;
     const profile = argv.profile;
 
-    if (typeof host !== "string") {
+    if (typeof host !== "string")
       throw new Error("Only 0 or 1 hosts may be passed.");
-    }
-
-    if (typeof port !== "string") {
+    if (typeof port !== "string")
       throw new Error("Only 0 or 1 ports may be passed.");
-    }
-
-    if (typeof profile !== "string") {
+    if (typeof profile !== "string")
       throw new Error("Only 0 or 1 profiles may be passed.");
-    }
   }
 
   updateBotSettings(argvBotSettings) {
@@ -69,17 +63,16 @@ export class AgentProcess {
     const newSettings = {};
 
     for (const [key, value] of Object.entries(argvBotSettings)) {
-      if (value !== "") {
-        newSettings[key] = value;
-      }
-    }
-    if (Object.keys(newSettings).length === 0) {
-      return;
+      if (value !== "") newSettings[key] = value;
     }
 
+    if (Object.keys(newSettings).length === 0) return;
+
+    console.log("Updating bot settings...");
     for (const [key, value] of Object.entries(newSettings)) {
       bot.settings[key] = value;
     }
+
     bot.saveBotSettings();
   }
 }

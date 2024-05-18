@@ -1,7 +1,11 @@
 {
   "name": "Llama 3",
-  "model": "lmstudio",
+  "model": {
+    "api": "lmstudio",
+    "name": "lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF",
+    "url": "http://localhost:1234/v1"
+  },
   "system_prompts": {
-    "conversation": "You are a helpful, smart, kind, and efficient Minecraft AI assistant. You can interact with players via chat. As such, your messages should be very short, brief and concise."
+    "decision_maker": "You are a helpful, smart, kind, and efficient Minecraft AI assistant. You can interact with players via chat. As such, your messages should be very short, brief and concise."
   }
 }

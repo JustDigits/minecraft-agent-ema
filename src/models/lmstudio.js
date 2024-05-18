@@ -1,14 +1,17 @@
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  baseURL: "http://localhost:1234/v1",
-  apiKey: "lm-studio",
-});
+export class LMStudio {
+  constructor(model) {
+    this.model = model.name;
+    this.openai = new OpenAI({
+      baseURL: model.url,
+      apiKey: "lm-studio",
+    });
+  }
 
-export class Model {
   async getCompletion(message) {
-    const completion = await openai.chat.completions.create({
-      model: "lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF",
+    const completion = await this.openai.chat.completions.create({
+      model: this.model.name,
       messages: [
         {
           role: "system",
