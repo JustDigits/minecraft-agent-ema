@@ -1,23 +1,31 @@
-import settings from "../settings.js";
+import { readFileSync } from "fs";
 
 import { initializeBot } from "../bot/bot.js";
 import { getCompletion } from "./chat.js";
 
 export class Agent {
-  async initializeAgent() {
-    this.name = settings.mineflayer.username;
-    this.bot = initializeBot(settings.mineflayer);
+  async initializeAgent(server_host, server_port, profile_fp) {
+    this.profile = this.parseAgentProfile(profile_fp);
+    this.name = this.profile.name;
+    this.bot = initializeBot(server_host, server_port);
 
     this.bot.once("spawn", async () => {
-      // Wait for bot to load world state
+      // Wait for world state to load
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      this.bot.chat("Hello, world! I'm Llama 3!");
+      this.bot.chat(`Hello, world! I'm ${this.name}!`);
+      this.startEventListeners();
+    });
+  }
 
-      this.bot.on("chat", (username, message) => {
-        if (username === this.name) return;
-        this.handleMessage(username, message);
-      });
+  parseAgentProfile(profile_fp) {
+    return JSON.parse(readFileSync(profile_fp, "utf-8"));
+  }
+
+  startEventListeners() {
+    this.bot.on("chat", (username, message) => {
+      if (username === this.name) return;
+      this.handleMessage(username, message);
     });
   }
 
