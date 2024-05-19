@@ -29,5 +29,16 @@ export class Agent {
       if (username === this.bot.username) return;
       await this.decisionMaker.handleMessage(username, message);
     });
+
+    this.bot.on("stop", async () => {
+      this.bot.clearControlStates();
+      this.bot.pathfinder.stop();
+    });
+
+    // TODO: Program other event listeners that will be handled by Decision Maker.
+    //       (e.g. if a hostile mob is nearby, notify the Decision Maker to flee or attack)
+
+    // TODO: Program default bot behaviors not influenced by Decision Maker.
+    //       (e.g. look at nearest player in a certain radius, auto eat when hungry)
   }
 }

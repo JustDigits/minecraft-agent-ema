@@ -2,15 +2,16 @@ import OpenAI from "openai";
 
 export class LMStudio {
   constructor(model) {
-    this.model = model.name;
-    this.openai = new OpenAI({
-      baseURL: model.url,
-      apiKey: "lm-studio",
-    });
+    this.model = model;
   }
 
   async getCompletion(message) {
-    const completion = await this.openai.chat.completions.create({
+    const openai = new OpenAI({
+      baseURL: this.model.url,
+      apiKey: "lm-studio",
+    });
+
+    const completion = await openai.chat.completions.create({
       model: this.model.name,
       messages: [
         {
