@@ -1,3 +1,6 @@
+import { goToPlayer, followPlayer } from "../knowledge-library/navigation.js";
+import { stop } from "../knowledge-library/common.js";
+
 const CLEAN_STRING_REGEX = /"/g;
 const NUMERIC_REGEX = /^\d+$/;
 const COMMAND_REGEX =
@@ -13,6 +16,26 @@ export function getUserCommand(message) {
   const params = extractUserCommandParams(match);
 
   return { command: command, params: params };
+}
+
+export function executeCommand(agent, command, params) {
+  switch (command) {
+    case "followPlayer":
+      agent.sendMessage("Following player!");
+      followPlayer(agent.bot, ...params);
+      break;
+    case "goToPlayer":
+      agent.sendMessage("Going to player!");
+      goToPlayer(agent.bot, ...params);
+      break;
+    case "stop":
+      agent.sendMessage("Stopping.");
+      stop(agent.bot);
+      break;
+    default:
+      agent.sendMessage("Unknown command: " + command);
+      break;
+  }
 }
 
 function extractUserCommand(matches) {
