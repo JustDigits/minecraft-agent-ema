@@ -19,6 +19,6 @@ Necesitas instalar Minecraft Java Edition y un LLM en LM Studio para probar este
 7. Verás tu número de puerto `[port]` en el chat del juego. Usa este número para iniciar este proyecto.
 8. Dirígete a la carpeta del juego y ejecuta el siguiente comando:
 ```bash
-npm index.js -h localhost -p [port]
+node index.js -h localhost -p [port]
 ```
-9. Regresa al juego y comienza a interactuar con la inteligencia artificial.
+9. Regresa al juego y comienza a interactuar con el agente inteligente.
