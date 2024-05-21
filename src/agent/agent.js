@@ -25,8 +25,8 @@ export class Agent {
   }
 
   startEventListeners() {
-    this.bot.on("chat", async (username, message) => {
-      if (username === this.bot.username) return;
+    this.bot.on("chat", async (username, message, type) => {
+      if (username === this.bot.username || type === "chat.type.admin") return;
       await this.decisionMaker.handleMessage(username, message);
     });
 

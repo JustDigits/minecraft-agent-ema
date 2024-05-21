@@ -13,9 +13,8 @@ export class DecisionMaker {
   }
 
   async handleMessage(username, message) {
-    if (!isUserMessage(message)) return;
-
     console.log("Handling message from " + username + ": " + message);
+
     if (isUserCommand(message)) {
       console.log("User command identified.");
       this.handleUserCommand(message);
