@@ -4,11 +4,11 @@ import { Bot } from "../bot/bot.js";
 import { DecisionMaker } from "./decision-maker/decision-maker.js";
 
 export class Agent {
-  async initializeAgent(profileFilepath) {
+  async initialize(profileFilepath) {
     this.profile = this.parseAgentProfile(profileFilepath);
     this.name = this.profile.name;
 
-    this.bot = new Bot().initializeBot();
+    this.bot = new Bot().initialize();
     this.decisionMaker = new DecisionMaker(this);
 
     this.bot.once("spawn", async () => {
@@ -24,13 +24,20 @@ export class Agent {
     return JSON.parse(readFileSync(profileFilepath, "utf-8"));
   }
 
+  sendMessage(message) {
+    // In Minecraft, newlines are interpreted as separate chats. Replaced with whitespaces.
+    this.bot.chat(message.replaceAll("\n", " "));
+  }
+
   startEventListeners() {
     this.bot.on("chat", async (username, message, type) => {
       if (username === this.bot.username || type === "chat.type.admin") return;
-      await this.decisionMaker.handleMessage(username, message);
+
+      const res = await this.decisionMaker.handleUserMessage(username, message);
+      console.log(res);
     });
 
-    this.bot.on("stop", async () => {
+    this.bot.on("_stop", () => {
       this.bot.clearControlStates();
       this.bot.pathfinder.stop();
     });

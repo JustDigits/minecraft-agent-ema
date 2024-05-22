@@ -13,7 +13,7 @@ export class AgentProcess {
     };
 
     this.updateBotSettings(argvBotSettings);
-    new Agent().initializeAgent(argv.profile);
+    new Agent().initialize(argv.profile);
   }
 
   getArgv(processArgv) {
@@ -73,6 +73,6 @@ export class AgentProcess {
       bot.settings[key] = value;
     }
 
-    bot.saveBotSettings();
+    bot.saveSettings();
   }
 }
