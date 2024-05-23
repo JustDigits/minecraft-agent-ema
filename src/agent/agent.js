@@ -1,14 +1,18 @@
 import { readFileSync } from "fs";
 
-import { Bot } from "../bot/bot.js";
+import { Bot } from "./bot/bot.js";
+import { History } from "./history/history.js";
 import { DecisionMaker } from "./decision-maker/decision-maker.js";
 
 export class Agent {
-  async initialize(profileFilepath) {
-    this.profile = this.parseAgentProfile(profileFilepath);
+  async initialize(profileFolderpath) {
+    this.workspace = profileFolderpath;
+
+    this.profile = this.parseAgentProfile();
     this.name = this.profile.name;
 
-    this.bot = new Bot().initialize();
+    this.bot = new Bot(this.workspace).initialize();
+    this.history = new History(this);
     this.decisionMaker = new DecisionMaker(this);
 
     this.bot.once("spawn", async () => {
@@ -20,8 +24,8 @@ export class Agent {
     });
   }
 
-  parseAgentProfile(profileFilepath) {
-    return JSON.parse(readFileSync(profileFilepath, "utf-8"));
+  parseAgentProfile() {
+    return JSON.parse(readFileSync(this.workspace + "profile.json", "utf-8"));
   }
 
   sendMessage(message) {
@@ -31,10 +35,8 @@ export class Agent {
 
   startEventListeners() {
     this.bot.on("chat", async (username, message, type) => {
-      if (username === this.bot.username || type === "chat.type.admin") return;
-
-      const res = await this.decisionMaker.handleUserMessage(username, message);
-      console.log(res);
+      if (type === "chat.type.admin" || username === this.bot.username) return;
+      await this.decisionMaker.handleUserMessage(username, message);
     });
 
     this.bot.on("_stop", () => {

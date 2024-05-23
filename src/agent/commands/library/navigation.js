@@ -9,13 +9,16 @@ export const navigation = [
       const bot = agent.bot;
 
       const player = bot.players[username]?.entity;
-      if (!player) return;
+      if (!player)
+        return { status: "failed", reason: "Could not find player." };
 
       const movements = new pf.Movements(bot);
       const goal = new pf.goals.GoalFollow(player, distance);
 
       bot.pathfinder.setMovements(movements);
       bot.pathfinder.setGoal(goal, true);
+
+      return { status: "OK" };
     },
   },
   {
@@ -26,7 +29,8 @@ export const navigation = [
       const bot = agent.bot;
 
       const player = bot.players[username]?.entity;
-      if (!player) return;
+      if (!player)
+        return { status: "failed", reason: "Could not find player." };
 
       const { x, y, z } = player.position;
       const movements = new pf.Movements(bot);
@@ -34,6 +38,8 @@ export const navigation = [
 
       bot.pathfinder.setMovements(movements);
       bot.pathfinder.setGoal(goal);
+
+      return { status: "OK" };
     },
   },
 ];

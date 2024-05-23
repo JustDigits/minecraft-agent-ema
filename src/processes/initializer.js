@@ -2,7 +2,7 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
 import { Agent } from "../agent/agent.js";
-import { Bot } from "../bot/bot.js";
+import { Bot } from "../agent/bot/bot.js";
 
 export class AgentProcess {
   initialize(processArgv) {
@@ -12,7 +12,12 @@ export class AgentProcess {
       port: argv.port,
     };
 
-    this.updateBotSettings(argvBotSettings);
+    for (const [key, value] of Object.entries(argvBotSettings)) {
+      if (value === "") delete argvBotSettings[key];
+    }
+
+    if (Object.keys(argvBotSettings).length !== 0)
+      this.updateBotSettings(argv.profile, argvBotSettings);
     new Agent().initialize(argv.profile);
   }
 
@@ -35,8 +40,8 @@ export class AgentProcess {
       })
       .option("profile", {
         type: "string",
-        describe: "Filepath to agent profile",
-        default: "src/agent/profiles/default-agent.json",
+        describe: "Filepath to agent profile folder.",
+        default: "src/agent/profiles/default-agent/",
       })
       .check((argv, options) => {
         this.checkArgv(argv);
@@ -58,21 +63,16 @@ export class AgentProcess {
       throw new Error("Only 0 or 1 profiles may be passed.");
   }
 
-  updateBotSettings(argvBotSettings) {
-    const bot = new Bot();
-    const newSettings = {};
-
-    for (const [key, value] of Object.entries(argvBotSettings)) {
-      if (value !== "") newSettings[key] = value;
-    }
-
-    if (Object.keys(newSettings).length === 0) return;
+  updateBotSettings(workspace, botSettings) {
+    const bot = new Bot(workspace);
 
     console.log("Updating bot settings...");
-    for (const [key, value] of Object.entries(newSettings)) {
-      bot.settings[key] = value;
+
+    const newBotSettings = bot.settings;
+    for (const key in botSettings) {
+      newBotSettings[key] = botSettings[key];
     }
 
-    bot.saveSettings();
+    bot.saveSettings(newBotSettings);
   }
 }

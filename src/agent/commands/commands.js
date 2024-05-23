@@ -1,10 +1,29 @@
 import { COMMAND_MAP } from "./library/library.js";
 
-const NUMERIC_PARAM_REGEX = /^\d+$/;
+const COMMAND_REGEX = getCommandRegex();
 
-// Syntaxis examples: !command() | !command | !command(123) | !command("str") | !command("str",123)
-const COMMAND_REGEX =
-  /!(?<command>\w+)(?:\((?<params>(?:(?:(?:"[\w ]+")|(?:\d+))(?:,[ ]?)?)*)\))?/;
+function getCommandRegex() {
+  // Syntaxis examples: !command() | !command | !command(123) | !command("str") | !command("str",123)
+
+  const STRING_TYPE = /(?:"[\w ]+")/;
+  const NUMBER_TYPE = /(?:\d+)/;
+  const VALID_PARAM_TYPES = new RegExp(
+    `(?:${STRING_TYPE.source}|${NUMBER_TYPE.source})`
+  );
+
+  const SEPARATOR = /(?:,[ ]?)/;
+  const PARAMS = new RegExp(
+    `(?<params>(?:${VALID_PARAM_TYPES.source}${SEPARATOR.source}?)*)`
+  );
+  const COMMAND_NAME = /[!.](?<command>\w+)/;
+
+  const COMMAND_SYNTAX = new RegExp(
+    `${COMMAND_NAME.source}(?:\\(${PARAMS.source}\\))?`
+  );
+
+  // /[!.](?<command>\w+)(?:\((?<params>(?:(?:(?:"[\w ]+")|(?:\d+))(?:,[ ]?)?)*)\))?/;
+  return COMMAND_SYNTAX;
+}
 
 export function isUserCommand(message) {
   return message.startsWith("!");
@@ -18,10 +37,12 @@ export function executeCommand(agent, commandName, params) {
   const command = COMMAND_MAP[commandName];
   if (!command) return { status: "failed", reason: "Command does not exist." };
 
-  const { status, reason } = validateCommandParams(params, command.params);
+  let { status, reason } = validateCommandParams(params, command.params);
   if (status === "failed") return { status: status, reason: reason };
 
-  command.execute(agent, ...params);
+  ({ status, reason } = command.execute(agent, ...params));
+  if (status === "failed") return { status: status, reason: reason };
+
   return { status: "OK" };
 }
 
@@ -36,6 +57,7 @@ export function parseCommandsFromMessage(message) {
     const params = parseCommandParams(match);
     commands.push({ command: command, params: params });
   }
+  console.log(commands);
 
   return commands;
 }
@@ -45,21 +67,8 @@ function parseCommandName(match) {
 }
 
 function parseCommandParams(match) {
-  // if (!params || params.length <= 0) return [];
-
-  // for (let i = 0; i < params.length; i++) {
-  //   if (NUMERIC_PARAM_REGEX.test(params[i])) {
-  //     // Cast numeric parameters into numbers
-  //     params[i] = Number(params[i]);
-  //   } else {
-  //     // Clean quotation marks from string parameters (e.g. "str" -> str)
-  //     params[i] = params[i].replace(/"/g, "");
-  //   }
-  // }
-
-  // return params;
-
-  const params = match.groups.params?.split(",").filter((str) => str.trim());
+  const NUMERIC_PARAM_REGEX = /^\d+$/;
+  const params = match.groups.params?.split(",").map((str) => str.trim());
 
   if (!params || params.length <= 0) return [];
 

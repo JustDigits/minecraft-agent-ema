@@ -2,10 +2,9 @@ import { createBot } from "mineflayer";
 import { pathfinder } from "mineflayer-pathfinder";
 import { writeFileSync, readFileSync } from "fs";
 
-const SETTINGS_FILEPATH = "src/bot/settings.json";
-
 export class Bot {
-  constructor() {
+  constructor(workspace) {
+    this.workspace = workspace;
     this.settings = this.parseSettings();
   }
 
@@ -14,32 +13,24 @@ export class Bot {
       `Initializing bot at '${this.settings.host}:${this.settings.port}'.`
     );
 
+    // For a complete list of valid bot settings
     // @see https://github.com/PrismarineJS/mineflayer/blob/master/docs/api.md#bot
-    const bot = createBot({
-      host: this.settings.host,
-      port: this.settings.port,
-      username: this.settings.username,
-      version: this.settings.version,
-    });
-
+    const bot = createBot(this.settings);
     bot.loadPlugin(pathfinder);
 
     return bot;
   }
 
   parseSettings() {
-    return JSON.parse(readFileSync(SETTINGS_FILEPATH, "utf-8"));
+    return JSON.parse(readFileSync(this.workspace + "bot.json", "utf-8"));
   }
 
-  saveSettings() {
+  saveSettings(newSettings) {
     console.log(`Saving bot settings...`);
 
     writeFileSync(
-      SETTINGS_FILEPATH,
-      JSON.stringify(this.settings, null, 2),
-      (error) => {
-        if (error) console.log(error);
-      }
+      this.workspace + "bot.json",
+      JSON.stringify(newSettings, null, 2)
     );
   }
 }
