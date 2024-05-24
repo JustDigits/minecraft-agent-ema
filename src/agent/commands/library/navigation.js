@@ -77,7 +77,7 @@ export const navigation = [
           });
         });
   
-        // Asegurarse de que el bot esté parado antes de minar
+        
         await new Promise((resolve) => setTimeout(resolve, 1000));
   
         // Minar el bloque
