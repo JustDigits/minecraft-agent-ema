@@ -7,18 +7,18 @@ import { Bot } from "../agent/bot/bot.js";
 export class AgentProcess {
   initialize(processArgv) {
     const argv = this.getArgv(processArgv);
-    const argvBotSettings = {
+    const botSettings = {
       host: argv.host,
       port: argv.port,
     };
 
-    for (const [key, value] of Object.entries(argvBotSettings)) {
-      if (value === "") delete argvBotSettings[key];
+    for (const [key, value] of Object.entries(botSettings)) {
+      if (value === "") delete botSettings[key];
     }
 
-    if (Object.keys(argvBotSettings).length !== 0)
-      this.updateBotSettings(argv.profile, argvBotSettings);
-    new Agent().initialize(argv.profile);
+    if (Object.keys(botSettings).length !== 0)
+      this.updateBotSettings(argv.profile, botSettings);
+    new Agent(argv.profile).initialize();
   }
 
   getArgv(processArgv) {
@@ -41,7 +41,7 @@ export class AgentProcess {
       .option("profile", {
         type: "string",
         describe: "Filepath to agent profile folder.",
-        default: "src/agent/profiles/default-agent/",
+        default: "src/profiles/openai/",
       })
       .check((argv, options) => {
         this.checkArgv(argv);
@@ -63,16 +63,14 @@ export class AgentProcess {
       throw new Error("Only 0 or 1 profiles may be passed.");
   }
 
-  updateBotSettings(workspace, botSettings) {
-    const bot = new Bot(workspace);
-
+  updateBotSettings(workspace, settings) {
     console.log("Updating bot settings...");
 
-    const newBotSettings = bot.settings;
-    for (const key in botSettings) {
-      newBotSettings[key] = botSettings[key];
+    const bot = new Bot(workspace);
+    for (const key in settings) {
+      bot.settings[key] = settings[key];
     }
 
-    bot.saveSettings(newBotSettings);
+    bot.saveSettings(bot.settings);
   }
 }

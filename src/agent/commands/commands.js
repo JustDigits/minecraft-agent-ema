@@ -57,7 +57,6 @@ export function parseCommandsFromMessage(message) {
     const params = parseCommandParams(match);
     commands.push({ command: command, params: params });
   }
-  console.log(commands);
 
   return commands;
 }

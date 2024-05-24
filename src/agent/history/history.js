@@ -8,6 +8,18 @@ export class History {
     this.messages = messages;
   }
 
+  addUserMessage(username, content) {
+    this.messages.push({ role: "user", content: content, name: username });
+  }
+
+  addAssistantMessage(content) {
+    this.messages.push({ role: "assistant", content: content });
+  }
+
+  addSystemMessage(content) {
+    this.messages.push({ role: "system", content: content });
+  }
+
   addMessage(role, content) {
     switch (role) {
       case "user":

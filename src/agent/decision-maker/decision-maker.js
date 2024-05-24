@@ -13,8 +13,6 @@ export class DecisionMaker {
     this.chatModel = getChatModel(agent.profile.model.chat);
 
     this.loadHistory();
-
-    console.log(this.agent.history.messages);
   }
 
   loadHistory() {
@@ -23,92 +21,79 @@ export class DecisionMaker {
   }
 
   async handleUserMessage(username, message) {
-    console.log(`Handling message from ${username}: ${message}`);
+    if (isUserCommand(message)) {
+      console.log(`COMMAND: Handling message from ${username}: ${message}`);
+      const { status, reason } = await this.handleCommand(message);
+      this.agent.sendMessage(reason);
+      return { type: "command", status: status, reason: reason };
+    }
 
-    if (isUserCommand(message)) return await this.handleUserCommand(message);
-
-    return await this.handleConversation(username, message);
-
-    // TODO: Add a cycle to prompt history
-
-    // if containsCommand -> execute -> getExecutionResults -> chatModel(OK ? send conversational message : try again )
-    // else if soleyConversationalMessage -> chatModel(message) -> return;
+    console.log(`CONVERSATION: Handling message from ${username}: ${message}`);
+    const { status, reason } = await this.handleConversation(username, message);
+    return { type: "conversation", status: status, reason: reason };
   }
 
   async handleConversation(username, message) {
     const AUTOPROMPTING_LIMIT = 5;
-    const composedMessage = `${username}: ${message}`;
-
-    this.agent.history.addMessage("user", composedMessage);
+    this.agent.history.addUserMessage(username, message);
 
     for (let i = 0; i < AUTOPROMPTING_LIMIT; i++) {
-      console.log(this.agent.history.messages);
-
-      const { role, content } = await this.chatModel.getCompletionFromHistory(
+      const { content } = await this.chatModel.getCompletionFromHistory(
         this.agent.history.messages
       );
 
-      if (content === "") {
-        console.log("EMPTY STRING");
-        await new Promise((resolve) => setTimeout(resolve, 10000));
-        continue;
+      if (content === "" || content === null) {
+        return {
+          status: "failed",
+          reason: "Failed to receive model completion.",
+        };
       }
-      this.agent.history.addMessage(role, content);
+
+      this.agent.history.addAssistantMessage(content);
 
       // Conversation response
       if (!containsCommand(content)) {
         this.agent.sendMessage(content);
-        return { type: "conversation", status: "OK" };
+        return {
+          status: "OK",
+          reason: `Successfully finished execution (${
+            i + 1
+          }/${AUTOPROMPTING_LIMIT})`,
+        };
       }
 
       // Command response
-      console.log("COMMAND RESPONSE");
-      const { status, reason } = await this.handleAgentCommand(content);
-      this.agent.history.addMessage("system", reason);
+      const { reason } = await this.handleCommand(content);
+      this.agent.history.addSystemMessage(reason);
     }
 
-    return { type: "conversation", status: "OK" };
+    return {
+      status: "OK",
+      reason: `Autoprompting limit reached (${AUTOPROMPTING_LIMIT}/${AUTOPROMPTING_LIMIT}).`,
+    };
   }
 
-  async handleAgentCommand(message) {
+  async handleCommand(message) {
     const commands = parseCommandsFromMessage(message);
 
     if (commands.length === 0) {
       return {
         status: "failed",
-        reason: `Invalid parameter syntax. String parameters must be enclosed in double quotes.`,
+        reason: `Invalid parameter syntax. Could not parse commands.`,
       };
     }
 
     for (const { command, params } of commands) {
       const { status, reason } = executeCommand(this.agent, command, params);
-
-      // TODO: Better error-handling of command array to not return upon first failure
-      if (status === "failed") {
-        return {
-          status: status,
-          reason: `Invalid command '${command}(${params})': ${reason}`,
-        };
-      }
-    }
-
-    return { status: "OK", reason: "All comands executed successfully." };
-  }
-
-  async handleUserCommand(message) {
-    const commands = parseCommandsFromMessage(message);
-
-    for (const { command, params } of commands) {
-      const { status, reason } = executeCommand(this.agent, command, params);
-
       if (status === "OK") continue;
 
       // TODO: Better error-handling of command array to not return upon first failure
-      this.agent.sendMessage(
-        `Invalid command '${command}(${params})': ${reason}`
-      );
-
-      return;
+      return {
+        status: status,
+        reason: `Invalid command '${command}(${params})': ${reason}`,
+      };
     }
+
+    return { status: "OK", reason: "Successfully executed all comands." };
   }
 }

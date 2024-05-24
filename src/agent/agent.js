@@ -5,19 +5,24 @@ import { History } from "./history/history.js";
 import { DecisionMaker } from "./decision-maker/decision-maker.js";
 
 export class Agent {
-  async initialize(profileFolderpath) {
+  constructor(profileFolderpath) {
     this.workspace = profileFolderpath;
-
     this.profile = this.parseAgentProfile();
     this.name = this.profile.name;
+    this.enableWhitelist = false;
+    this.whitelist = ["JustDigits_"];
 
     this.bot = new Bot(this.workspace).initialize();
     this.history = new History(this);
     this.decisionMaker = new DecisionMaker(this);
+  }
+
+  initialize() {
+    console.log("Loaded history:", this.history.messages);
 
     this.bot.once("spawn", async () => {
       // Wait for world state to load
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       this.bot.chat(`Hello, world! I'm ${this.name}!`);
       this.startEventListeners();
@@ -35,8 +40,11 @@ export class Agent {
 
   startEventListeners() {
     this.bot.on("chat", async (username, message, type) => {
+      if (this.enableWhitelist && !this.whitelist.includes(username)) return;
       if (type === "chat.type.admin" || username === this.bot.username) return;
-      await this.decisionMaker.handleUserMessage(username, message);
+
+      const res = await this.decisionMaker.handleUserMessage(username, message);
+      console.log(res);
     });
 
     this.bot.on("_stop", () => {
