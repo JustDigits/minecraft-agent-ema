@@ -33,14 +33,14 @@ export function containsCommand(message) {
   return COMMAND_REGEX.test(message);
 }
 
-export function executeCommand(agent, commandName, params) {
+export async function executeCommand(agent, commandName, params) {
   const command = COMMAND_MAP[commandName];
   if (!command) return { status: "failed", reason: "Command does not exist." };
 
   let { status, reason } = validateCommandParams(params, command.params);
   if (status === "failed") return { status: status, reason: reason };
 
-  ({ status, reason } = command.execute(agent, ...params));
+  ({ status, reason } = await command.execute(agent, ...params));
   if (status === "failed") return { status: status, reason: reason };
 
   return { status: "OK" };

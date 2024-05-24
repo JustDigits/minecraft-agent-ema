@@ -58,4 +58,28 @@ export const botActions = [
       return { status: "OK" };
     },
   },
+  {
+    name: "sleep",
+    params: [],
+    description: "Makes the bot sleep in the nearest bed.",
+    execute: function (agent) {
+      const bot = agent.bot;
+      const bed = bot.findBlock({
+        matching: block => bot.registry.blocksByName[block.name]?.name.includes("bed"),
+        maxDistance: 64,
+      });
+      if (bed) {
+        bot.sleep(bed)
+          .then(() => {
+            agent.sendMessage("Bot is now sleeping.");
+          })
+          .catch(err => {
+            agent.sendMessage(`Failed to sleep: ${err.message}`);
+          });
+      } else {
+        agent.sendMessage("No bed found nearby.");
+      }
+      return { status: "OK" };
+    },
+  },
 ];

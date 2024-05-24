@@ -1,6 +1,6 @@
 {
-  "host": "thelittlecaesars.aternos.me",
-  "port": "47522",
+  "host": "localhost",
+  "port": "56839",
   "username": "TheLittleCaesars",
   "version": "1.18.2"
 }

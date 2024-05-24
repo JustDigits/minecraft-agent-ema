@@ -84,7 +84,7 @@ export class DecisionMaker {
     }
 
     for (const { command, params } of commands) {
-      const { status, reason } = executeCommand(this.agent, command, params);
+      const { status, reason } = await executeCommand(this.agent, command, params);
       if (status === "OK") continue;
 
       // TODO: Better error-handling of command array to not return upon first failure
