@@ -94,6 +94,6 @@ export class DecisionMaker {
       };
     }
 
-    return { status: "OK", reason: "Successfully executed all comands." };
+    return { status: "OK", reason: "Successfully executed all commands." };
   }
 }
