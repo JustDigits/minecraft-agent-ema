@@ -1,4 +1,4 @@
-import { COMMAND_MAP } from "./library/library.js";
+import { COMMAND_MAP } from "./library.js";
 
 const COMMAND_REGEX = getCommandRegex();
 

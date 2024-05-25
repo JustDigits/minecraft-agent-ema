@@ -1,9 +1,10 @@
 {
-  "name": "GPT 4",
+  "name": "Llama 3",
   "model": {
     "chat": {
-      "api": "openai",
-      "name": "gpt-4-1106-preview"
+      "api": "lmstudio",
+      "url": "http://localhost:1234/v1",
+      "name": "lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF"
     }
   },
   "system_prompts": {

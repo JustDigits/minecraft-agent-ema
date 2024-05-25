@@ -12,6 +12,8 @@ export class DecisionMaker {
     this.agent = agent;
     this.chatModel = getChatModel(agent.profile.model.chat);
 
+    console.log(agent.profile.model.chat);
+
     this.loadHistory();
   }
 
@@ -29,7 +31,14 @@ export class DecisionMaker {
     }
 
     console.log(`CONVERSATION: Handling message from ${username}: ${message}`);
+
+    // Avoid event collisions
+    if (this.agent.isThinking) return;
+
+    this.agent.isThinking = true;
     const { status, reason } = await this.handleConversation(username, message);
+    this.agent.isThinking = false;
+
     return { type: "conversation", status: status, reason: reason };
   }
 
@@ -56,9 +65,9 @@ export class DecisionMaker {
         this.agent.sendMessage(content);
         return {
           status: "OK",
-          reason: `Successfully finished execution (${
+          reason: `Successfully finished execution in (${
             i + 1
-          }/${AUTOPROMPTING_LIMIT})`,
+          }/${AUTOPROMPTING_LIMIT}) iterations.`,
         };
       }
 
@@ -84,16 +93,54 @@ export class DecisionMaker {
     }
 
     for (const { command, params } of commands) {
-      const { status, reason } = await executeCommand(this.agent, command, params);
+      const { status, reason } = await executeCommand(
+        this.agent,
+        command,
+        params
+      );
       if (status === "OK") continue;
 
       // TODO: Better error-handling of command array to not return upon first failure
       return {
         status: status,
-        reason: `Invalid command '${command}(${params})': ${reason}`,
+        reason: `Invalid command '${command}(${params})': ${reason}. Use !commandHelp for an overview of command usage.`,
       };
     }
 
     return { status: "OK", reason: "Successfully executed all commands." };
+  }
+
+  async promptChatModelWithSystemMessage(message) {
+    if (containsCommand(message)) {
+      return {
+        status: "failed",
+        reason: "System messages should not trigger command execution.",
+      };
+    }
+
+    const { content } = await this.chatModel.getCompletionFromHistory([
+      ...this.agent.history.messages,
+      { role: "system", content: message },
+    ]);
+
+    if (content === "" || content === null) {
+      return {
+        status: "failed",
+        reason: "Failed to receive model completion.",
+      };
+    }
+
+    if (containsCommand(content)) {
+      return {
+        status: "failed",
+        reason: "Assistant response contained command.",
+      };
+    }
+
+    this.agent.history.addSystemMessage(message);
+    this.agent.history.addAssistantMessage(content);
+    this.agent.sendMessage(content);
+
+    return { status: "OK" };
   }
 }

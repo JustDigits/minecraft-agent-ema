@@ -7,6 +7,8 @@ export class GPT {
         "OpenAI API key not set for OPENAI_API_KEY environment variable."
       );
 
+    console.log(process.env.OPENAI_API_KEY);
+
     this.model = model.name || "gpt-3.5-turbo";
     this.openai = new OpenAI();
   }

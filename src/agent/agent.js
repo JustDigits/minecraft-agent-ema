@@ -6,12 +6,14 @@ import { DecisionMaker } from "./decision-maker/decision-maker.js";
 
 export class Agent {
   constructor(profileFolderpath) {
+    this.enableWhitelist = true;
+    this.whitelist = ["JustDigits_"];
+
     this.workspace = profileFolderpath;
     this.profile = this.parseAgentProfile();
     this.name = this.profile.name;
-    this.enableWhitelist = false;
-    this.whitelist = ["JustDigits_"];
 
+    this.isThinking = false;
     this.bot = new Bot(this.workspace).initialize();
     this.history = new History(this);
     this.decisionMaker = new DecisionMaker(this);
@@ -22,7 +24,7 @@ export class Agent {
 
     this.bot.once("spawn", async () => {
       // Wait for world state to load
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       this.bot.chat(`Hello, world! I'm ${this.name}!`);
       this.startEventListeners();
@@ -40,7 +42,10 @@ export class Agent {
 
   startEventListeners() {
     this.bot.on("chat", async (username, message, type) => {
+      // Handle user authorization
       if (this.enableWhitelist && !this.whitelist.includes(username)) return;
+
+      // Handle chat events
       if (type === "chat.type.admin" || username === this.bot.username) return;
 
       const res = await this.decisionMaker.handleUserMessage(username, message);
@@ -50,6 +55,7 @@ export class Agent {
     this.bot.on("_stop", () => {
       this.bot.clearControlStates();
       this.bot.pathfinder.stop();
+      this.isThinking = false;
     });
 
     // TODO: Program other event listeners that will be handled by Decision Maker.
