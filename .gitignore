@@ -1,5 +1,10 @@
 # dependencies
 /node_modules
+.venv
 
 # local env files
 .env
+
+# chroma
+chromadb
+chroma.log
