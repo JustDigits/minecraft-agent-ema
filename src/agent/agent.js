@@ -13,21 +13,23 @@ export class Agent {
     this.profile = this.parseAgentProfile();
     this.name = this.profile.name;
 
-    this.isThinking = false;
+    this.isBusy = false;
     this.bot = new Bot(this.workspace).initialize();
     this.history = new History(this);
     this.decisionMaker = new DecisionMaker(this);
   }
 
   initialize() {
-    console.log("Loaded history:", this.history.messages);
+    console.info("Loaded history:", this.history.messages);
 
     this.bot.once("spawn", async () => {
       // Wait for world state to load
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      this.bot.chat(`Hello, world! I'm ${this.name}!`);
+      this.customizePlugins();
       this.startEventListeners();
+
+      this.bot.chat(`Hello, world! I'm ${this.name}!`);
     });
   }
 
@@ -38,6 +40,18 @@ export class Agent {
   sendMessage(message) {
     // In Minecraft, newlines are interpreted as separate chats. Replaced with whitespaces.
     this.bot.chat(message.replaceAll("\n", " "));
+  }
+
+  customizePlugins() {
+    this.bot.autoEat.options.priority = "foodPoints";
+    this.bot.autoEat.options.startAt = 15;
+    this.bot.autoEat.options.bannedFood = [
+      "rotten_flesh",
+      "poisonous_potato",
+      "pufferfish",
+      "chicken",
+      "spider_eye",
+    ];
   }
 
   startEventListeners() {
@@ -52,16 +66,32 @@ export class Agent {
       console.log(res);
     });
 
+    // Custom events
     this.bot.on("_stop", () => {
       this.bot.clearControlStates();
       this.bot.pathfinder.stop();
-      this.isThinking = false;
+      this.bot.pvp.stop();
+    });
+
+    // Debugging and Error handling
+    this.bot.on("error", (error) => {
+      console.error("Agent process error:", error);
+    });
+
+    this.bot.on("end", (reason) => {
+      console.warn("Agent was disconnected from server:", reason);
+    });
+
+    this.bot.on("kicked", (reason) => {
+      console.warn("Agent was kicked from server:", reason);
     });
 
     // TODO: Program other event listeners that will be handled by Decision Maker.
     //       (e.g. if a hostile mob is nearby, notify the Decision Maker to flee or attack)
 
     // TODO: Program default bot behaviors not influenced by Decision Maker.
-    //       (e.g. look at nearest player in a certain radius, auto eat when hungry)
+    //       (e.g. look at nearest player in a certain radius)
+
+    //TODO: Add setInterval for task management
   }
 }

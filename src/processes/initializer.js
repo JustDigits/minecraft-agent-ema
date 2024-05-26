@@ -41,7 +41,7 @@ export class AgentProcess {
       .option("profile", {
         type: "string",
         describe: "Filepath to agent profile folder.",
-        default: "src/profiles/openai/",
+        default: "src/profiles/lmstudio/",
       })
       .check((argv, options) => {
         this.checkArgv(argv);
@@ -64,7 +64,7 @@ export class AgentProcess {
   }
 
   updateBotSettings(workspace, settings) {
-    console.log("Updating bot settings...");
+    console.info("Updating bot settings...");
 
     const bot = new Bot(workspace);
     for (const key in settings) {

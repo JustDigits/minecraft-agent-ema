@@ -1,4 +1,4 @@
-export const auth = [
+export const whitelist = [
   {
     name: "enableWhitelist",
     params: [],

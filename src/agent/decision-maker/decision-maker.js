@@ -12,7 +12,10 @@ export class DecisionMaker {
     this.agent = agent;
     this.chatModel = getChatModel(agent.profile.model.chat);
 
-    console.log(agent.profile.model.chat);
+    console.info(
+      `Initializing chat model with settings:`,
+      agent.profile.model.chat
+    );
 
     this.loadHistory();
   }
@@ -24,21 +27,14 @@ export class DecisionMaker {
 
   async handleUserMessage(username, message) {
     if (isUserCommand(message)) {
-      console.log(`COMMAND: Handling message from ${username}: ${message}`);
+      console.info(`COMMAND: Handling message from ${username}: ${message}`);
       const { status, reason } = await this.handleCommand(message);
       this.agent.sendMessage(reason);
       return { type: "command", status: status, reason: reason };
     }
 
-    console.log(`CONVERSATION: Handling message from ${username}: ${message}`);
-
-    // Avoid event collisions
-    if (this.agent.isThinking) return;
-
-    this.agent.isThinking = true;
+    console.info(`CONVERSATION: Handling message from ${username}: ${message}`);
     const { status, reason } = await this.handleConversation(username, message);
-    this.agent.isThinking = false;
-
     return { type: "conversation", status: status, reason: reason };
   }
 
@@ -84,7 +80,6 @@ export class DecisionMaker {
 
   async handleCommand(message) {
     const commands = parseCommandsFromMessage(message);
-
     if (commands.length === 0) {
       return {
         status: "failed",
@@ -98,12 +93,13 @@ export class DecisionMaker {
         command,
         params
       );
+
       if (status === "OK") continue;
 
       // TODO: Better error-handling of command array to not return upon first failure
       return {
         status: status,
-        reason: `Invalid command '${command}(${params})': ${reason}. Use !commandHelp for an overview of command usage.`,
+        reason: `Invalid command '${command}(${params})': ${reason} Use !commandHelp for an overview of command usage.`,
       };
     }
 

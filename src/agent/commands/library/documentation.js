@@ -1,3 +1,5 @@
+//TODO: Improve documentation, explain syntax and command categories (navigation, actions, resources, inventory, etc.) rather than individual commands; add commandCategoryHelp that lists available commands from that category; add commandDocs that gives the AI documentation of a given command
+
 export const documentation = [
   {
     name: "commandHelp",
