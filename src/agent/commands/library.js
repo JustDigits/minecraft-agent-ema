@@ -1,4 +1,5 @@
 import { actions } from "./library/actions.js";
+import { behaviors } from "./library/behaviors.js";
 import { debugging } from "./dev/debugging.js";
 import { documentation } from "./library/documentation.js";
 import { navigation } from "./library/navigation.js";
@@ -9,6 +10,7 @@ export const COMMAND_MAP = createCommandMap();
 function createCommandMap() {
   const commandList = [
     ...actions,
+    ...behaviors,
     ...debugging,
     ...documentation,
     ...navigation,

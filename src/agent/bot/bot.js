@@ -1,6 +1,5 @@
 import { writeFileSync, readFileSync } from "fs";
 
-import minecraftData from "minecraft-data";
 import { createBot } from "mineflayer";
 
 import armorManager from "mineflayer-armor-manager";
@@ -13,8 +12,6 @@ export class Bot {
   constructor(workspace) {
     this.workspace = workspace;
     this.settings = this.parseSettings();
-    this.version = null;
-    this.mcData = null;
   }
 
   initialize() {
@@ -25,9 +22,6 @@ export class Bot {
 
     const bot = createBot(this.settings);
     bot.loadPlugins([armorManager, autoEat, collectBlock, pathfinder, pvp]);
-
-    this.version = bot.version;
-    this.mcData = minecraftData(this.version);
 
     return bot;
   }

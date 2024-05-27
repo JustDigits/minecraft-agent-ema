@@ -1,7 +1,9 @@
+import minecraftData from "minecraft-data";
 import { readFileSync } from "fs";
 
 import { Bot } from "./bot/bot.js";
 import { History } from "./history/history.js";
+import { Behaviors } from "./behaviors/behaviors.js";
 import { DecisionMaker } from "./decision-maker/decision-maker.js";
 
 export class Agent {
@@ -15,6 +17,9 @@ export class Agent {
 
     this.isBusy = false;
     this.bot = new Bot(this.workspace).initialize();
+    this.mcdata = minecraftData(this.bot.version);
+
+    this.behaviors = null;
     this.history = new History(this);
     this.decisionMaker = new DecisionMaker(this);
   }
@@ -27,6 +32,7 @@ export class Agent {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       this.customizePlugins();
+      this.startBehaviors();
       this.startEventListeners();
 
       this.bot.chat(`Hello, world! I'm ${this.name}!`);
@@ -52,6 +58,10 @@ export class Agent {
       "chicken",
       "spider_eye",
     ];
+  }
+
+  startBehaviors() {
+    this.behaviors = new Behaviors(this);
   }
 
   startEventListeners() {

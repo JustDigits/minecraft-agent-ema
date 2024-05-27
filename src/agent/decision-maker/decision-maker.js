@@ -1,4 +1,3 @@
-import { History } from "../history/history.js";
 import { getChatModel } from "./utils.js";
 import {
   isUserCommand,
