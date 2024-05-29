@@ -1,3 +1,5 @@
+import pf from "mineflayer-pathfinder";
+
 export const mining = [
   {
     name: "mineBlock",

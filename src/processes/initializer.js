@@ -41,7 +41,7 @@ export class AgentProcess {
       .option("profile", {
         type: "string",
         describe: "Filepath to agent profile folder.",
-        default: "src/profiles/lmstudio/",
+        default: "src/profiles/openai/",
       })
       .check((argv, options) => {
         this.checkArgv(argv);

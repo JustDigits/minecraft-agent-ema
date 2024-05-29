@@ -2,6 +2,7 @@ import { actions } from "./library/actions.js";
 import { behaviors } from "./library/behaviors.js";
 import { debugging } from "./dev/debugging.js";
 import { documentation } from "./library/documentation.js";
+import { mining } from "./library/mining.js";
 import { navigation } from "./library/navigation.js";
 import { whitelist } from "./utils/whitelist.js";
 
@@ -13,6 +14,7 @@ function createCommandMap() {
     ...behaviors,
     ...debugging,
     ...documentation,
+    ...mining,
     ...navigation,
     ...whitelist,
   ];

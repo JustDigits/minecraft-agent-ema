@@ -82,7 +82,7 @@ export class DecisionMaker {
     if (commands.length === 0) {
       return {
         status: "failed",
-        reason: `Invalid parameter syntax. Could not parse commands.`,
+        reason: `Invalid command syntax. Could not parse commands.`,
       };
     }
 
