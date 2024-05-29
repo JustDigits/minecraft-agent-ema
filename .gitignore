@@ -6,5 +6,6 @@
 .env
 
 # chroma
-chromadb
+chromadb/db
+chroma_data
 chroma.log

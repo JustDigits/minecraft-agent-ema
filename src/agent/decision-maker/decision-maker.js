@@ -41,6 +41,13 @@ export class DecisionMaker {
     const AUTOPROMPTING_LIMIT = 5;
     this.agent.history.addUserMessage(username, message);
 
+    const docs = await this.agent.chromadb.getRelevantDocuments(message);
+    this.agent.history.addSystemMessage(
+      `Based on the user's message, the following commands might be useful: ${docs.ids.join(
+        ", "
+      )}. Do not use a command unless absolutely necessary. Respond in natural language if possible. Use !commandHelp(<command_name>) to retrieve detailed usage information for given command.`
+    );
+
     for (let i = 0; i < AUTOPROMPTING_LIMIT; i++) {
       const { content } = await this.chatModel.getCompletionFromHistory(
         this.agent.history.messages
@@ -56,8 +63,8 @@ export class DecisionMaker {
       this.agent.history.addAssistantMessage(content);
 
       // Conversation response
+      this.agent.sendMessage(content);
       if (!containsCommand(content)) {
-        this.agent.sendMessage(content);
         return {
           status: "OK",
           reason: `Successfully finished execution in (${
@@ -67,7 +74,7 @@ export class DecisionMaker {
       }
 
       // Command response
-      const { reason } = await this.handleCommand(content);
+      const { status, reason } = await this.handleCommand(content);
       this.agent.history.addSystemMessage(reason);
     }
 
@@ -86,6 +93,7 @@ export class DecisionMaker {
       };
     }
 
+    const list = [];
     for (const { command, params } of commands) {
       const { status, reason } = await executeCommand(
         this.agent,
@@ -93,26 +101,25 @@ export class DecisionMaker {
         params
       );
 
-      if (status === "OK") continue;
+      if (status === "OK") {
+        list.push(command);
+        continue;
+      }
 
       // TODO: Better error-handling of command array to not return upon first failure
       return {
         status: status,
-        reason: `Invalid command '${command}(${params})': ${reason} Use !commandHelp for an overview of command usage.`,
+        reason: `Invalid command '${command}(${params})': ${reason}`,
       };
     }
 
-    return { status: "OK", reason: "Successfully executed all commands." };
+    return {
+      status: "OK",
+      reason: `Successfully executed all commands: ${list.join(", ")}`,
+    };
   }
 
   async promptChatModelWithSystemMessage(message) {
-    if (containsCommand(message)) {
-      return {
-        status: "failed",
-        reason: "System messages should not trigger command execution.",
-      };
-    }
-
     const { content } = await this.chatModel.getCompletionFromHistory([
       ...this.agent.history.messages,
       { role: "system", content: message },
@@ -122,13 +129,6 @@ export class DecisionMaker {
       return {
         status: "failed",
         reason: "Failed to receive model completion.",
-      };
-    }
-
-    if (containsCommand(content)) {
-      return {
-        status: "failed",
-        reason: "Assistant response contained command.",
       };
     }
 

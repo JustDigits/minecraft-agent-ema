@@ -108,16 +108,25 @@ function validateCommandParams(userParams, commandParams) {
       case "string":
         userParams[i] = String(userParams[i].replace(/"/g, ""));
         break;
-
       case "number":
         if (isNaN(userParams[i])) {
           return {
             status: "failed",
-            reason: `Expected parameter type 'number' at position ${i + 1}.`,
+            reason: `Failed to cast parameter to type 'number' at position ${
+              i + 1
+            }.`,
           };
         }
         userParams[i] = Number(userParams[i]);
         break;
+      case "boolean":
+        userParams[i] = Boolean(userParams[i]);
+        break;
+      default:
+        return {
+          status: "failed",
+          reason: `Only string, number and boolean parameters are allowed.`,
+        };
     }
   }
 

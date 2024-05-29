@@ -1,3 +1,3 @@
-import { AgentProcess } from "./src/processes/initializer.js";
+import { AgentProcess } from "./src/processes/agent-process.js";
 
 new AgentProcess().initialize(process.argv);

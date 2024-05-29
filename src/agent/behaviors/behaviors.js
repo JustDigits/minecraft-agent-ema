@@ -7,4 +7,8 @@ export class Behaviors {
       hunting: new HuntingBehavior(this.agent),
     };
   }
+
+  stop() {
+    this.map.hunting.stop();
+  }
 }

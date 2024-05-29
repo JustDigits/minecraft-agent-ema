@@ -1,6 +1,7 @@
 import minecraftData from "minecraft-data";
 import { readFileSync } from "fs";
 
+import { ChromaDB } from "./embeddings/chromadb.js";
 import { Bot } from "./bot/bot.js";
 import { History } from "./history/history.js";
 import { Behaviors } from "./behaviors/behaviors.js";
@@ -20,12 +21,17 @@ export class Agent {
     this.mcdata = minecraftData(this.bot.version);
 
     this.behaviors = null;
+    this.chromadb = new ChromaDB();
     this.history = new History(this);
     this.decisionMaker = new DecisionMaker(this);
   }
 
   initialize() {
     console.info("Loaded history:", this.history.messages);
+
+    console.info(
+      "Loading embeddings... This might take a while if this is your first time running the code."
+    );
 
     this.bot.once("spawn", async () => {
       // Wait for world state to load
@@ -34,6 +40,8 @@ export class Agent {
       this.customizePlugins();
       this.startBehaviors();
       this.startEventListeners();
+
+      await this.startChromaDB();
 
       this.bot.chat(`Hello, world! I'm ${this.name}!`);
     });
@@ -78,6 +86,7 @@ export class Agent {
 
     // Custom events
     this.bot.on("_stop", () => {
+      this.behaviors.stop();
       this.bot.clearControlStates();
       this.bot.pathfinder.stop();
       this.bot.pvp.stop();
@@ -103,5 +112,9 @@ export class Agent {
     //       (e.g. look at nearest player in a certain radius)
 
     //TODO: Add setInterval for task management
+  }
+
+  async startChromaDB() {
+    await this.chromadb.loadDocuments();
   }
 }
