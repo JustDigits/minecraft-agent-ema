@@ -1,4 +1,4 @@
-## Minecraft: Interacciones y comportamientos emergentes en agentes inteligentes.
+## EMA: Embodied Minecraft Agent.
 
 En Minecraft, un agente inteligente competente debería saber utilizar un repertorio de conocimiento y habilidades para navegar e interactuar de forma autónoma con el mundo, crear planes para realizar tareas complejas y lograr metas y exhibir comportamientos e interacciones naturales con otros usuarios. Con este fin, desarrollamos y evaluamos EMA, un agente inteligente corporizado de Minecraft basado en modelos de lenguaje grande (LLM). Creemos que un LLM equipado con las herramientas e interfaces adecuadas puede realizar interacciones complejas y navegar y adaptarse a sus entornos.
 
