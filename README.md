@@ -1,6 +1,6 @@
 ## Minecraft: Interacciones y comportamientos emergentes en agentes inteligentes.
 
-En Minecraft, un agente inteligente competente debería saber utilizar un repertorio de conocimiento y habilidades para navegar e interactuar de forma autónoma con el mundo, crear planes para realizar tareas complejas y lograr metas y exhibir comportamientos e interacciones naturales con otros usuarios. El objetivo principal de este proyecto es desarrollar un agente inteligente competente que pueda aprender de sus interacciones con otros usuarios y el mundo para crear, ampliar y corregir su repertorio de conocimiento y habilidades a largo plazo. Al hacerlo, creemos que el agente se convertirá en una herramienta más adaptable y efectiva capaz de desenvolverse y operar dentro de los entornos interactivos y dinámicos de Minecraft.
+En Minecraft, un agente inteligente competente debería saber utilizar un repertorio de conocimiento y habilidades para navegar e interactuar de forma autónoma con el mundo, crear planes para realizar tareas complejas y lograr metas y exhibir comportamientos e interacciones naturales con otros usuarios. Con este fin, desarrollamos y evaluamos EMA, un agente inteligente corporizado de Minecraft basado en modelos de lenguaje grande (LLM). Creemos que un LLM equipado con las herramientas e interfaces adecuadas puede realizar interacciones complejas y navegar y adaptarse a sus entornos.
 
 ## Instalación
 
@@ -18,7 +18,7 @@ npm install
 
 Necesitas instalar Minecraft Java Edition para probar este proyecto. Después de instalar Minecraft Java Edition, sigue los siguientes pasos para probar el proyecto por primera vez:
 
-1. Inicia un [servidor local de LM Studio](https://lmstudio.ai/docs/local-server), o bien, [configura tu llave para la API de OpenAI] (https://platform.openai.com/docs/quickstart/step-2-set-up-your-api-key).
+1. Inicia un [servidor local de LM Studio](https://lmstudio.ai/docs/local-server), o bien, [configura tu llave para la API de OpenAI](https://platform.openai.com/docs/quickstart/step-2-set-up-your-api-key).
 2. En el launcher de Minecraft, selecciona una versión (recomendamos la 1.18.2) y ejecuta el juego.
 3. Entra o crea un mundo de un solo jugador (`Singleplayer`).
 4. Presiona `ESC` y selecciona `Open to LAN`.
