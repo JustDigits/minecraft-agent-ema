@@ -33,6 +33,15 @@ export class ChromaDB {
     };
   }
 
+  async peekCollectionDocuments(limit = 10) {
+    const collection = await client.getOrCreateCollection({
+      name: collectionName,
+    });
+
+    const documents = await collection.peek({ limit: limit });
+    return documents.documents;
+  }
+
   async reset() {
     await client.heartbeat();
     await client.reset();

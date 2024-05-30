@@ -1,7 +1,7 @@
 import minecraftData from "minecraft-data";
 import { readFileSync } from "fs";
 
-import { ChromaDB } from "./embeddings/chromadb.js";
+import { ChromaDB } from "./memory/chromadb.js";
 import { Bot } from "./bot/bot.js";
 import { History } from "./history/history.js";
 import { Behaviors } from "./behaviors/behaviors.js";
@@ -29,10 +29,6 @@ export class Agent {
   initialize() {
     console.info("Loaded history:", this.history.messages);
 
-    console.info(
-      "Loading embeddings... This might take a while if this is your first time running the code."
-    );
-
     this.bot.once("spawn", async () => {
       // Wait for world state to load
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -41,7 +37,13 @@ export class Agent {
       this.startBehaviors();
       this.startEventListeners();
 
+      console.info(
+        "Loading embeddings... This might take a while if this is your first time running the code."
+      );
       await this.startChromaDB();
+
+      const docs = await this.chromadb.peekCollectionDocuments();
+      console.log(docs);
 
       this.bot.chat(`Hello, world! I'm ${this.name}!`);
     });
